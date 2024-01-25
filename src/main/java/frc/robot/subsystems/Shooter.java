@@ -6,9 +6,9 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
+
 import edu.wpi.first.math.controller.PIDController;
 import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,6 +63,9 @@ public class Shooter extends SubsystemBase {
             ShooterConstants.CAN_INDEXER_D);
     ShooterPivotController = new PIDController(ShooterConstants.CAN_SHOOTER_Pivot_P, ShooterConstants.CAN_SHOOTER_Pivot_I,
             ShooterConstants.CAN_SHOOTER_Pivot_D);
+    
+    shooterpivot_R.getAbsoluteEncoder(Type.kDutyCycle).setPositionConversionFactor(2*Math.PI);
+    zeroPivotAngle();
   }
 
   @Override
@@ -95,14 +98,22 @@ public class Shooter extends SubsystemBase {
     rpmIndexer(-setpoint, false);
   }
 
-  public int getShooterRpm() {
-    return (int) (Math.abs(shooterMotorL.getEncoder().getVelocity()) +
+  //Average speed of shooter motors for displaying
+  public double getShooterRpm() {
+    return (Math.abs(shooterMotorL.getEncoder().getVelocity()) +
             Math.abs(shooterMotorR.getEncoder().getVelocity())) / 2;
   }
 
-  public void setpivotangle(double setpoint){
+  public void setPivotAngle(double setpoint){
   shooterpivot_R.set(ShooterPivotController.calculate(
-    shooterpivot_R.getEncoder().getPosition(), setpoint));
+    shooterpivot_R.getAbsoluteEncoder(Type.kDutyCycle).getPosition(), setpoint));
+  }
+
+  //call when flat
+  public void zeroPivotAngle() {
+    shooterpivot_R.getAbsoluteEncoder(Type.kDutyCycle)
+      .setZeroOffset(shooterpivot_R.getAbsoluteEncoder(Type.kDutyCycle).getPosition());
+
   }
 
   
