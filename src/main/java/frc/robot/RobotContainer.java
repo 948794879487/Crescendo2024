@@ -6,12 +6,12 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.swerve.Swerve;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -28,6 +28,7 @@ public class RobotContainer {
   private final EndEffector m_endEffector = new EndEffector(); 
   private final Swerve m_swerveDrive = new Swerve();
   private final Shooter SHOOTER = new Shooter();
+  private final Climber CLIMBER = new Climber();
   //private final Shooter m_shooter = new Shooter();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -72,6 +73,12 @@ public class RobotContainer {
 
     TestShooterPivot testShooterPivot = new TestShooterPivot(SHOOTER);
     m_driverController.y().whileTrue(testShooterPivot);
+    m_driverController.x().toggleOnTrue(CLIMBER.runOnce(() -> {
+      CLIMBER.extend();
+    }));
+    m_driverController.x().toggleOnFalse(CLIMBER.runOnce(() -> {
+      CLIMBER.retract();
+    }));
     //DriveShooter shooterCommand = new DriveShooter(m_shooter, m_driverController::getRightTriggerAxis, m_driverController::getLeftTriggerAxis);
     //m_shooter.setDefaultCommand(shooterCommand);
   }
@@ -84,5 +91,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return Autos.exampleAuto(m_exampleSubsystem);
+  }
+
+  public Climber getClimber() {
+    return CLIMBER;
   }
 }
